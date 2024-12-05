@@ -36,20 +36,23 @@ def HSV2RGB(H,S,V=1):
 	Rd,Gd,Bd = RGB_dash
 	return [(Rd+m),(Gd+m),(Bd+m)]
 
-def makeFibre(ele, azi,sectionRad = 0.02,fibreName = 'Fibre', use_bevel_object=True):
+def makeFibre(ele, azi,sectionRad = 0.02,fibreName = 'Fibre', use_bevel_object=False):
 	#bezier curve controls cross section of the fibre for visualisation, zero in reality
-	ops.curve.primitive_bezier_circle_add()
-	fibreCrossSec = data.objects['BezierCircle']
-	fibreCrossSec.name = fibreName +'_fibreCrossSec'
+	if use_bevel_object:
+		ops.curve.primitive_bezier_circle_add()
+		fibreCrossSec = bpy.context.active_object
+		fibreCrossSec.name = fibreName +'_fibreCrossSec'
 	
 	if ele == pi:
-		fibreCrossSec.scale = [sectionRad,sectionRad,1]
 		ops.curve.primitive_nurbs_path_add()
-		fibre = data.objects['NurbsPath']
-		fibreCurve = data.curves['NurbsPath']
+		fibre = bpy.context.active_object
 		fibre.rotation_euler.y = pi/2
 		fibre.scale.x = 1000
-		fibre.data.bevel_object = fibreCrossSec
+		if use_bevel_object:
+			fibreCrossSec.scale = [sectionRad,sectionRad,1]
+			fibre.data.bevel_object = fibreCrossSec
+		else:
+			fibre.data.bevel_depth = sectionRad
 		new_mat = data.materials.new(name = 'FibreColour')
 		new_mat.diffuse_color = (0,0,1,1)
 		fibre.data.materials.append(new_mat)
@@ -57,26 +60,27 @@ def makeFibre(ele, azi,sectionRad = 0.02,fibreName = 'Fibre', use_bevel_object=T
 		ele /= 2
 		baseRad = 2*((1/(pi/2 - ele)) - (2/pi))
 		fibreRad = baseRad + 1/(baseRad +1)
-		fibreCrossSec.scale = [sectionRad/fibreRad,sectionRad/fibreRad,1]
 		fibreCentre = (baseRad*sin(azi), baseRad*cos(azi),0)
 		ops.curve.primitive_bezier_circle_add()
-		fibre = data.objects['BezierCircle']
-		fibreCurve = data.curves['BezierCircle']
-		fibre.name, fibreCurve.name = (fibreName,fibreName)
+		fibre = bpy.context.active_object
+		fibre.name, fibre.data.name = (fibreName,fibreName)
 		fibre.location = fibreCentre
 		fibre.scale = (fibreRad,fibreRad,fibreRad)
 		fibre.rotation_euler.y = ele
 		fibre.rotation_euler.z = -azi
 		if use_bevel_object:
+			fibreCrossSec.scale = [sectionRad/fibreRad,sectionRad/fibreRad,1]
 			fibre.data.bevel_mode = "OBJECT"
 			fibre.data.bevel_object = fibreCrossSec
+		else:
+			fibre.data.bevel_depth = sectionRad/fibreRad
 		new_mat = data.materials.new(name = 'FibreColour')
 		hue = (azi*15/pi) + ele*330/pi
 		r,g,b = HSV2RGB(hue,1,1)
-		#print(hue)
 		new_mat.diffuse_color = (r,g,b,1)
 		fibre.data.materials.append(new_mat)
 	ops.object.select_all(action='DESELECT')
+	return fibre
 
 def mkhopf(tori = 6, fibresPerTorus = 50, section = 0.8):
 	if 'Cube' in bpy.data.objects:
@@ -115,6 +119,6 @@ if __name__ == '__main__':
 		print(cmd)
 		subprocess.check_call(cmd)
 		sys.exit()
-	mkhopf()
+	mkhopf(**kwargs)
 	
 	
