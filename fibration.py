@@ -36,7 +36,7 @@ def HSV2RGB(H,S,V=1):
 	Rd,Gd,Bd = RGB_dash
 	return [(Rd+m),(Gd+m),(Bd+m)]
 
-def makeFibre(ele, azi,sectionRad = 0.02,fibreName = 'Fibre', use_bevel_object=False):
+def makeFibre(ele, azi,sectionRad = 0.02,fibreName = 'Fibre', use_bevel_object=False, use_mesh_torus=True, use_grease_pencil=True, bevel_factor=4, extrude_factor=10):
 	#bezier curve controls cross section of the fibre for visualisation, zero in reality
 	if use_bevel_object:
 		ops.curve.primitive_bezier_circle_add()
@@ -52,7 +52,7 @@ def makeFibre(ele, azi,sectionRad = 0.02,fibreName = 'Fibre', use_bevel_object=F
 			fibreCrossSec.scale = [sectionRad,sectionRad,1]
 			fibre.data.bevel_object = fibreCrossSec
 		else:
-			fibre.data.bevel_depth = sectionRad
+			fibre.data.bevel_depth = sectionRad * bevel_factor
 		new_mat = data.materials.new(name = 'FibreColour')
 		new_mat.diffuse_color = (0,0,1,1)
 		fibre.data.materials.append(new_mat)
@@ -73,12 +73,37 @@ def makeFibre(ele, azi,sectionRad = 0.02,fibreName = 'Fibre', use_bevel_object=F
 			fibre.data.bevel_mode = "OBJECT"
 			fibre.data.bevel_object = fibreCrossSec
 		else:
-			fibre.data.bevel_depth = sectionRad/fibreRad
+			fibre.data.bevel_depth = (sectionRad/fibreRad) * bevel_factor
+			fibre.data.extrude = (sectionRad/fibreRad) * extrude_factor
 		new_mat = data.materials.new(name = 'FibreColour')
 		hue = (azi*15/pi) + ele*330/pi
 		r,g,b = HSV2RGB(hue,1,1)
 		new_mat.diffuse_color = (r,g,b,1)
 		fibre.data.materials.append(new_mat)
+
+		if use_mesh_torus:
+			bpy.ops.mesh.primitive_torus_add(major_segments=12, minor_segments=12, major_radius=1, minor_radius=2)
+			tor = bpy.context.active_object
+			mod = tor.modifiers.new('sphere', type="CAST")
+			mod.factor = -1.5
+			tor.scale *= 0.25
+			tor.parent = fibre
+			tor.location.y = 1
+			tor.data.materials.append(new_mat)
+			if use_grease_pencil:
+				bpy.ops.object.convert(target="GPENCIL")
+				tor = bpy.context.active_object
+				tor.data.materials[1].grease_pencil.show_fill=False
+				tor.data.materials[1].grease_pencil.show_stroke=True
+				#tor.data.materials[1].grease_pencil.color[3]=0.3
+				bpy.ops.object.gpencil_modifier_add(type="GP_SUBDIV")
+				mod = tor.grease_pencil_modifiers[-1]
+				mod.level = 3
+				#bpy.ops.object.gpencil_modifier_add(type="GP_DASH")
+			else:
+				mod = tor.modifiers.new('wire', type="WIREFRAME")
+				tor.display_type = "WIRE"
+
 	ops.object.select_all(action='DESELECT')
 	return fibre
 
