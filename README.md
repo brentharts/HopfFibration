@@ -55,6 +55,7 @@ h = (2 Re z1 conj z2, 2 Im z1 conj z2, |z1|^2-|z2|^2), a fibre is e^{it}(z1, z2)
 | `hopf_rotations.py` | the 12-fold rotation group of the Spectre tiling's 4D lift acting on C2: 60 degrees = the Hopf circle action, 30 degrees = a rotation by pi of the base |
 | `hopf_berger.py` | Berger spheres (fibre scaled by s), exact Ricci curvature, the collapsing fibre (Mixmaster / "pancake"), and a labelled numerology check |
 | `hopf_quaternion_rotor.py` | rotors, the SU(2)->SO(3) double cover, the qubit and Bloch sphere, Berry phase = half the solid angle |
+| `hopf_line_bundle.py` | the Hopf fibration **without a principal bundle**: the tautological line bundle, connection and holonomy from the projector alone, three independent holonomy methods, Chern number 1 (see [`HOPF_WITHOUT_PRINCIPAL_BUNDLES.md`](HOPF_WITHOUT_PRINCIPAL_BUNDLES.md)) |
 | `hopf_division_algebras.py` | the four Hopf fibrations S0->S1, S1->S3, S3->S7, S7->S15 from R, C, H, O by one formula; why the octonionic one is not a principal bundle |
 | `hopf_anim.py` | GIF animations (a fibre sweeping a torus; a qubit rotating), and Blender keyframe helper |
 

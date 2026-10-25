@@ -9,7 +9,7 @@ import sys
 import time
 
 MODULES = ["hopf_math", "hopf_clifford", "hopf_s2_view", "hopf_rotations", "hopf_berger",
-           "hopf_quaternion_rotor", "hopf_division_algebras", "hopf_anim"]
+           "hopf_quaternion_rotor", "hopf_division_algebras", "hopf_line_bundle", "hopf_anim"]
 
 if __name__ == "__main__":
     failed = []
