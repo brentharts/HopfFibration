@@ -113,7 +113,10 @@ on the round unit S3 (Ricci 2) the Bakry-Emery tensor is (2 + 6 beta_W cos a) g,
 the left is whether squashing the Hopf fibre helps. At Q_e = -1, a critical point, the Hessian does not depend on the metric, so on
 a Berger sphere the tensor is 2 s^2 - 6 beta_W / s^2 along the fibre and 4 - 2 s^2 - 6 beta_W across it, positive exactly for
 beta_W < min(s^4, 2 - s^2) / 3. That window is largest at s = 1, where it equals 1/3: the round metric is optimal among Berger
-metrics, so the threshold is not an artefact of choosing it.
+metrics, so within that family the threshold is not an artefact of choosing the round metric. The family is not gauge-natural: a Berger metric is
+left-invariant but not right-invariant, so it breaks one of the link's two SU(2) symmetries (the gauge transformations at its two ends),
+and the statement is about the metric on S3, not about a gauge-invariant lattice theory (see `SU2_BERGER_TOP.md` in
+[openai_math_yang_mills](https://github.com/brentharts/openai_math_yang_mills) for the Laplace spectrum of the same family).
 
 ## References
 

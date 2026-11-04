@@ -26,7 +26,9 @@ threshold 1/3 is not an artefact of choosing the round metric.
 
 WHAT THIS IS NOT.  It is a computation at one point (Q_e = -1) of one link with the rest of the lattice held at the identity,
 as in the preprint's remark; it is not a bound on the lattice theory.  A Berger metric on every link is not the bi-invariant
-product structure the Dobrushin and Bakry-Emery arguments use, and nothing here says those arguments extend to it.
+product structure the Dobrushin and Bakry-Emery arguments use, and nothing here says those arguments extend to it.  Concretely, a Berger
+metric is left-invariant but only U(1)-right-invariant, so it breaks one of the link's two SU(2) symmetries (the gauge transformations at its
+two ends): "the round sphere is optimal among Berger metrics" is a statement about a family of metrics on S3, not about a gauge theory.
 
     python3 hopf_be_window.py --tests
     python3 hopf_be_window.py --png figures/hopf_be_window.png
