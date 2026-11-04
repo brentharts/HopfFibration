@@ -1,8 +1,27 @@
 # HopfFibration
 
-The Hopf Fibration is the fibre bundle created by projecting the four-dimenstional sphere **S3** onto the three-dimentional sphere **S2**, every point on **S2** has a corresponding fibre in three-dimensional space **R3** which is a perfect two-dimensional sphere (or circle) **S1**. This structure is written as **S1 -> S3 -> S2**, which can be read as; "The fibre-space **S1** is embedded in the full-space **S3** which is projected to the base-space **S2**". 
+The Hopf fibration is the fibre bundle **S1 -> S3 -> S2**: the three-sphere **S3** (the unit sphere in R4 = C2) is a union of circles, one over each point of the two-sphere **S2**, and the Hopf map sends every point of a circle to that point of **S2**. Read it as "the fibre **S1** sits in the total space **S3**, which projects onto the base **S2**".
 
-This fibre bundle is space-filling in **R3**, every fibre links with every other fibre and no two fibres ever intersect. Lines of constant elevation (&epsilon;) on **S2** are seen as tori in the fibre-space, lines of constant azimuth (&alpha;) appear has Hopf bands. There are two edge cases at the poles of **S2**; at the south pole (&alpha; = 0) the fibres converge to a circle lying flat in the X-Y plane, at the north pole (&alpha; = &pi;) the fibre is a circle through infinity (here visualised as the straight line lying on the Z-axis).
+Under stereographic projection the fibres fill R3: every pair of fibres links once and no two meet. Circles of constant elevation on **S2** lift to nested tori, and a line of constant azimuth lifts to a Hopf band. At the poles of **S2** the picture degenerates: a flat circle in the X-Y plane at the south pole, and at the north pole a circle through infinity, drawn as the straight line along the Z axis.
+
+## How this repo connects to other work
+
+This fork is also a place to test how the fibration touches other repositories and papers. The links differ in strength, so each row says which kind it is. "Direct" means the same mathematical object; "indirect" means only a shared space (S3 = SU(2)); "topical" means the abstract was read and nothing more.
+
+| Connection | What is shared | Scripts / notes here | Strength |
+|---|---|---|---|
+| **Pancake cosmology** (Dechant, Lasenby, Hobson, [arXiv:0809.4335](https://arxiv.org/abs/0809.4335)) via [Quantum_Gravity_Lab](#related-repositories) | the biaxial Bianchi IX slice is a Berger sphere whose short axis is the Hopf fibre | `hopf_berger.py`, `hopf_pancake.py`; in QGL: `qgl_hopf.py`, `tests/test_s3_identifications.py` | direct (biaxial case only), checked both ways, 18 of 18 |
+| **Hopfion crystals** (Hou et al., [arXiv:2504.03981](https://arxiv.org/abs/2504.03981v1)) | the Hopf invariant as a linking number, Q_H = m n for xi = Z1^m / Z0^n | `hopf_knots.py` | direct, numerically checked for 12 coprime pairs |
+| **Symbolic Hopf derivations** ([openai_math_yang_mills](#related-repositories)) | the Hopf map, Clifford relation, section circles, (p,q) knots | cross-check against `hopf_math.py` | direct, 23 of 23 |
+| **Lattice Yang-Mills gap** (Bhattacharjee et al., Hexagon [2610.00341v5](https://hexagonmath.org/2610.00341v5)) | one SU(2) link lives on S3; Ricci curvature of the Hopf-squashed S3 | `hopf_be_window.py`, [`YANG_MILLS_LATTICE_GAP.md`](YANG_MILLS_LATTICE_GAP.md) | indirect; unrefereed preprint; one-point computation |
+| Ferreira et al. ([2503.06315](https://arxiv.org/abs/2503.06315v2)), Lin et al. ([2406.06096](https://arxiv.org/abs/2406.06096)), Lisi ([2609.12112](https://arxiv.org/abs/2609.12112)) | the same S2 / hopfions / division algebras | see [References](#references) | indirect or topical |
+
+![the pancake as a Berger sphere along the real numerical solution (from Quantum_Gravity_Lab)](https://raw.githubusercontent.com/brentharts/Quantum_Gravity_Lab/main/figures/qgl_hopf.png)
+
+*From the sister repository's `qgl_hopf.py`: the squashing of the Hopf fibre along the numerical pancake solution, which follows the leading-order line `a0 t / b0` near the pancake, then overshoots the round sphere (about 1.44) and falls back. The `hopf_pancake.py` figure below uses only the leading order.*
+
+
+## Scripts
 
 The scripts below use only numpy (and matplotlib/Pillow for pictures). Each has `--tests`; `python3 hopf_tests.py` runs them all.
 Convention used throughout: a point of S3 is (z1, z2) in C2 with |z1|^2+|z2|^2 = 1, the Hopf map is
@@ -49,7 +68,8 @@ asserted in the tests to miss 6. Nothing here claims the Hopf fibration explains
 
 The three scripts below are narrower than the pictures suggest. `hopf_knots.py` estimates linking numbers with a midpoint-rule Gauss
 integral (a few parts in 10^3, rounded to the integer p q). `hopf_pancake.py` uses only the leading-order behaviour R_1 = a0 t,
-R_2 = b0 near the pancake; it does not evolve any field equations or check the Dechant-Lasenby-Hobson solution. `hopf_be_window.py`
+R_2 = b0 near the pancake; it does not evolve any field equations or check the Dechant-Lasenby-Hobson solution (the sister repository's `qgl_hopf.py` follows
+the numerical solution of its leading-order model, see [Related repositories](#related-repositories)). `hopf_be_window.py`
 is a computation at one point (Q_e = -1) of one link with every other link at the identity; it is not a bound on lattice
 Yang-Mills, and the Berger-metric question it asks is not addressed by the preprint it starts from. One fact about existing code:
 `hopf_berger.berger_ricci` evaluates Milnor's formula, which subtracts numbers of size 1/s and loses all its digits once s is below
@@ -154,7 +174,9 @@ Papers and related reading. Each entry says how it relates to the Hopf fibration
   - Its notes are explicit that nothing Hopf-related bears on a Yang-Mills existence or mass-gap result. The only shared fact is
     S3 = SU(2). This repo makes the same point.
 
-  *Cross-check (3 Nov 2026).* The fork's Hopf claims were restated from its docstring and tested numerically against
+  <details><summary><b>Cross-check (3 Nov 2026): 23 of 23 pass</b></summary>
+
+  The fork's Hopf claims were restated from its docstring and tested numerically against
   `hopf_math.py` (the fork's own code was not run): 23 of 23 checks pass.
   - The map, fibre constancy, and the Clifford relation |<z,w>|^2 = (1 + h(z).h(w))/2, with fibre distance equal to half the
     base angle.
@@ -170,6 +192,8 @@ Papers and related reading. Each entry says how it relates to the Hopf fibration
 
   Not covered: the fork's other models, and anything it states beyond its Hopf-fibration model. The check script is not in this
   repo.
+
+  </details>
 - [brentharts/Quantum_Gravity_Lab](https://github.com/brentharts/Quantum_Gravity_Lab) (CC0-1.0, about 4 MB): a semi-classical
   sandbox that couples orbits, a Jaynes-Cummings sensor and a "complexity scalar". Its cosmology modules are the part that touches
   this repo: `qgl_bkl.py` (BKL / Mixmaster, vacuum Bianchi IX), `qgl_pancake.py` (the non-singular pancake of Dechant, Lasenby and
@@ -178,7 +202,9 @@ Papers and related reading. Each entry says how it relates to the Hopf fibration
   the setting of `hopf_berger.py` (that script already cites the pancake model). Only the biaxial case is Hopf; general Mixmaster
   has three unequal axes.
 
-  *Cross-check (3 Nov 2026).* The geometry its modules rely on was re-implemented from their source text and tested numerically
+  <details><summary><b>Cross-check (3 Nov 2026): 18 of 18 pass</b></summary>
+
+  The geometry its modules rely on was re-implemented from their source text and tested numerically
   against `hopf_berger.py` and `hopf_math.py` (their code was not run): 18 of 18 checks pass.
   - `qgl_bkl.ricci3(a)` with a = R/2 equals Milnor's Ricci curvature of the metric (1/4) sum R_i^2 omega_i^2 on S3, in the
     orthonormal frame, for random scale factors (constant ratio 1.000000), so the unit S3 is R_i = 1.
@@ -189,10 +215,22 @@ Papers and related reading. Each entry says how it relates to the Hopf fibration
     fibre, and the point returns at psi = 4 pi (psi = 2 pi is the antipode). The fibre length is therefore 2 pi R_1, and the base
     point's polar angle is theta, with antipodes at pi and base radius R_2 / 2. These are the identifications behind
     `FIBRE_PERIOD = 4 pi`, `fibre_circumference = 2 pi R_1` and the null rates 2 / R_1 and 2 / R_2 in `qgl_horizon.py`, which
-    that file marks as "not checked". They hold for the standard S3; whether the paper uses that S3 and not an SO(3) quotient is
-    not tested here.
+    that file marked as "not checked". They hold for the standard S3; whether the paper uses that S3 and not an SO(3) quotient is
+    not tested here (period 2 pi there would double every winding count). The Euler-angle and Milnor parts of this check now live in
+    the QGL repository as `tests/test_s3_identifications.py` (13 tests), written independently of this repo's code.
   - The volume of the (s, 1, 1) slice is 2 pi^2 s.
 
   Not covered: the dynamics (the bounce solver, K(t), the horizon integrals), and everything physical (the sensor, the complexity
   scalar, the Bell-parameter ansatz). The repository states that its coupling from curvature to the sensor is a modelling choice,
   and that its Mixmaster horizon test is a proxy not checked against real null geodesics. This repo takes no position on either.
+
+  </details>
+
+  *Added in QGL after the cross-check.* `qgl_hopf.py` follows the Berger-sphere reading along the real numerical pancake solution
+  rather than its leading order, and `tests/test_hopf.py` checks it (11 tests). Its README has a matching subsection, "The pancake
+  as a Hopf fibration". Two things come out that the leading-order scripts here cannot show. For a0 = 1, b0 = 3, f0 = 2, m = 0.5 the
+  squashing s = R_1 / R_2 follows a0 t / b0 near the pancake, then overshoots the round sphere (peak about 1.44 near t = 3.7) and
+  falls back, so the slice does not approach a round S3 monotonically. And the e-folds of t per fibre turn, 2 pi R_1 / t, start at
+  2 pi a0 and rise to about 8.7 before falling, so the constant 2 pi a0 used in `hopf_berger.levels_per_turn` is the small-t value
+  only. The slice Ricci curvature from the solution equals the Berger closed form to rounding, which checks `qgl_bkl.ricci3` and
+  the identification, not new physics.
