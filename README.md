@@ -14,6 +14,7 @@ This fork is also a place to test how the fibration touches other repositories a
 | **Hopfion crystals** (Hou et al., [arXiv:2504.03981](https://arxiv.org/abs/2504.03981v1)) | the Hopf invariant as a linking number, Q_H = m n for xi = Z1^m / Z0^n | `hopf_knots.py` | direct, numerically checked for 12 coprime pairs |
 | **Symbolic Hopf derivations** ([openai_math_yang_mills](#related-repositories)) | the Hopf map, Clifford relation, section circles, (p,q) knots | cross-check against `hopf_math.py` | direct, 23 of 23 |
 | **Lattice Yang-Mills gap** (Bhattacharjee et al., Hexagon [2610.00341v5](https://hexagonmath.org/2610.00341v5)) | one SU(2) link lives on S3; Ricci curvature of the Hopf-squashed S3 | `hopf_be_window.py`, [`YANG_MILLS_LATTICE_GAP.md`](YANG_MILLS_LATTICE_GAP.md) | indirect; unrefereed preprint; one-point computation |
+| **Oloid** ([Wikipedia](https://en.wikipedia.org/wiki/Oloid)) | its skeleton is a Hopf link; Moebius invariants of the circle pair; rolling as a loop in SO(3) lifted to S3 | `hopf_oloid.py` | direct for the computed statements (38 checks in `--tests`); no literature link known, the interpretation is ours |
 | Ferreira et al. ([2503.06315](https://arxiv.org/abs/2503.06315v2)), Lin et al. ([2406.06096](https://arxiv.org/abs/2406.06096)), Lisi ([2609.12112](https://arxiv.org/abs/2609.12112)) | the same S2 / hopfions / division algebras | see [References](#references) | indirect or topical |
 
 ![the pancake as a Berger sphere along the real numerical solution (from Quantum_Gravity_Lab)](https://raw.githubusercontent.com/brentharts/Quantum_Gravity_Lab/main/figures/qgl_hopf.png)
@@ -41,6 +42,7 @@ h = (2 Re z1 conj z2, 2 Im z1 conj z2, |z1|^2-|z2|^2), a fibre is e^{it}(z1, z2)
 | `hopf_knots.py` | the maps Hopf(z1^p, z2^q): preimages are (q,p) torus knots and two of them link p q times, the Hopf invariant (see [Connecting the pieces](#connecting-the-pieces-knots-the-pancake-and-one-su2-link)) |
 | `hopf_pancake.py` | the collapsing fibre of the pancake cosmology on Berger slices: finite curvature, fibre circumference 2 pi R1, light winding round the fibre (leading order only, not a solution of the field equations) |
 | `hopf_be_window.py` | the one-link Bakry-Emery tensor of lattice SU(2) at Q_e = -1 on round and Berger spheres: the 1/3 threshold, and why the round metric maximises the window |
+| `hopf_oloid.py` | the oloid against the Hopf fibration: area 4 pi, the Moebius invariants of its two circles (principal angles 60 and 90 degrees, so not a Hopf pair; the two-circle roller d = sqrt 2 is one, over antipodal base points), and its rolling lifted to S3 (one period returns the orientation but ends at -q) |
 
 ### Audit of `makeFibre`
 
