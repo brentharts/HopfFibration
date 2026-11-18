@@ -3,6 +3,7 @@
 
     python3 hopf_bkl.py --tests      checks (the reflection-law test needs the wada-coudene clone)
     python3 hopf_bkl.py --trend      how well the sharp-wall reflection law fits real trajectories (about 5 minutes)
+    python3 hopf_bkl.py --eras       era-length statistics of the wall words against the Gauss-Kuzmin law
 
 Content (see HOPF_BKL.md):
   * the kinetic form of the diagonal Bianchi IX system, sum_{i<j} v_i v_j, is Lorentzian; the three curvature walls
@@ -169,6 +170,57 @@ def run_tests(verbose=True):
     check("ray's inversions at kappa = 2, s = 1/4 satisfy (r0 r1)^3 = (r0 r2)^3 = 1 and r1 r2 has no finite order (3,3,inf)",
           e01 < 1e-12 and e02 < 1e-12 and e12 > 1e-3, "(errors %.0e, %.0e; best finite order for r1 r2: %.2f)" % (e01, e02, e12))
 
+    # 6b. a closed orbit of the billiard group with the Spectre's inflation factor: eigenvalue (4 + sqrt 15)^2, trace 63
+    eps = 4 + np.sqrt(15)
+    Mg = [Ma, Mb, Mc]
+    hit = None
+    for Lw in range(2, 13):
+        for w in itertools.product(range(3), repeat=Lw):
+            if any(w[k] == w[k + 1] for k in range(Lw - 1)):
+                continue
+            M = np.eye(3)
+            for i in w:
+                M = M @ Mg[i]
+            if abs(np.trace(M) - 63) < 1e-7 and abs(np.abs(np.linalg.eigvals(M)).max() - eps ** 2) < 1e-6 * eps ** 2:
+                hit = (Lw, w)
+                break
+        if hit:
+            break
+    check("the group has a closed orbit with eigenvalue (4 + sqrt 15)^2 = 61.98 (trace 63), the BKL era orbit (6, 1) of u* = 3 + sqrt 15 and the square of the Spectre's lambda^2; shortest word found",
+          hit is not None and hit[0] == 12, "(length %s, word %s)" % (hit[0] if hit else None, "".join(str(i + 1) for i in hit[1]) if hit else None))
+
+    # 6c. Hurwitz units and the three left-invariant fibrations: each family cuts the 24 units into 6 fibres of 4; conjugation by (1+i+j+k)/2 permutes the families
+    def qmul(p, q):
+        a1, b1, c1, d1 = p; a2, b2, c2, d2 = q
+        return (a1*a2 - b1*b2 - c1*c2 - d1*d2, a1*b2 + b1*a2 + c1*d2 - d1*c2, a1*c2 - b1*d2 + c1*a2 + d1*b2, a1*d2 + b1*c2 - c1*b2 + d1*a2)
+    units = []
+    for i in range(4):
+        for sg in (1.0, -1.0):
+            units.append(tuple(sg if k == i else 0.0 for k in range(4)))
+    for sgs in itertools.product((0.5, -0.5), repeat=4):
+        units.append(sgs)
+    key = lambda q: tuple(int(round(2 * x)) for x in q)
+    US = {key(u) for u in units}
+    ax = [(0, 1.0, 0, 0), (0, 0, 1.0, 0), (0, 0, 0, 1.0)]
+
+    def fibres(u):
+        out = set()
+        for q in units:
+            f = frozenset(key(qmul(q, qq)) for qq in [(1.0, 0, 0, 0), u, (-1.0, 0, 0, 0), tuple(-x for x in u)])
+            out.add(f)
+        return out
+    fam = [fibres(u) for u in ax]
+    q0 = (0.5, 0.5, 0.5, 0.5)
+    q0i = (0.5, -0.5, -0.5, -0.5)
+    conj = lambda q: qmul(qmul(q0, q), q0i)
+    perm_ok = True
+    for f_from, f_to in ((0, 1), (1, 2), (2, 0)):
+        mapped = {frozenset(key(conj(tuple(x / 2.0 for x in v))) for v in fb) for fb in fam[f_from]}
+        perm_ok &= (mapped == fam[f_to])
+    check("the 24 Hurwitz units lie on 6 fibres of 4 in each of the three left-invariant fibrations, and conjugation by (1+i+j+k)/2 carries family i to j to k",
+          len(units) == 24 and all(len(f) == 6 and all(len(x) == 4 for x in f) for f in fam) and perm_ok,
+          "(%s)" % ", ".join(str(len(f)) for f in fam))
+
     # 7. the sharp wall reflection law in isolation, from the actual Mixmaster equations
     mm = _mixmaster()
     if mm is None:
@@ -196,6 +248,56 @@ def run_tests(verbose=True):
     check("an isolated bounce off wall 3 of the Mixmaster equations changes a Kasner velocity as v_3 -> -v_3, v_j -> v_j + 2 v_3",
           worst < 1e-2, "(worst relative error %.1e)" % worst)
     return ok
+
+
+# ---------------------------------------------------------------------------------------------------- eras
+def eras(n=160):
+    """Era statistics of the wall words (decided states of the persistent rule on an n x n grid of [-1,1]^2).
+
+    A run is a maximal stretch of letters with w[k] = w[k-2] (two walls alternating); r is its number of letters.  Compared with
+    the Gauss-Kuzmin law P(k) = -log2(1 - 1/(k+1)^2) of the era length k of the BKL map, with k = r - 1: an offset of one
+    letter chosen after looking at the data.  Uses figures/mixmaster_words_<n>.npz of the wada-coudene clone if present."""
+    from collections import Counter
+    mm = _mixmaster()
+    here = os.path.dirname(os.path.abspath(__file__))
+    cache = None
+    for root in (os.environ.get("WADA_REPO"), os.path.join(here, "..", "wada-coudene")):
+        if root and os.path.exists(os.path.join(root, "figures", "mixmaster_words_%d.npz" % n)):
+            cache = os.path.join(root, "figures", "mixmaster_words_%d.npz" % n)
+    if cache:
+        z = np.load(cache); lab, W = z["lab"], z["W"]
+    elif mm is not None:
+        a = (np.arange(n) + 0.5) / n * 2 - 1
+        BP, BM = np.meshgrid(a, a, indexing="ij")
+        lab, W = mm.exit_words(BP, BM)
+    else:
+        print("wada-coudene clone not found")
+        return
+    L = (W > 0).sum(axis=-1)
+    gk = lambda k: -np.log2(1 - 1 / (k + 1.0) ** 2)
+    for name, trim in (("all runs", False), ("first and last run of each word dropped", True)):
+        runs, tot = Counter(), 0
+        for i, j in np.argwhere(lab > 0):
+            w = [int(c) for c in W[i, j, :L[i, j]]]
+            if len(w) < 2:
+                continue
+            rs, r = [], 2
+            for k in range(2, len(w)):
+                if w[k] == w[k - 2]:
+                    r += 1
+                else:
+                    rs.append(r); r = 2
+            rs.append(r)
+            if trim:
+                rs = rs[1:-1]
+            for r_ in rs:
+                runs[r_] += 1; tot += 1
+        p = np.array([runs[r] / tot for r in range(2, 12)])
+        q = np.array([gk(r - 1) for r in range(2, 12)])
+        print("%s: %d runs; r = 2..11" % (name, tot))
+        print("   observed    ", " ".join("%.3f" % x for x in p))
+        print("   Gauss-Kuzmin", " ".join("%.3f" % x for x in q), "  (k = r - 1)")
+        print("   total variation distance on r = 2..11: %.3f" % (0.5 * np.abs(p / p.sum() - q / q.sum()).sum()))
 
 
 # ---------------------------------------------------------------------------------------------------- trend
@@ -251,5 +353,7 @@ def trend(ntraj=100, seed=3):
 if __name__ == "__main__":
     if "--trend" in sys.argv:
         trend()
+    elif "--eras" in sys.argv:
+        eras()
     else:
         sys.exit(0 if run_tests(verbose=True) else 1)
